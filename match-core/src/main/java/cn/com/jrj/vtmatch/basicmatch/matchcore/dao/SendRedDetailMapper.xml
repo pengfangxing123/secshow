@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.jrj.vtmatch.basicmatch.matchcore.dao.SendRedDetailMapper">
+
+	<select id="selectRedDetailPage" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.SendRedDetailInfoVo">
+			SELECT
+				r1.id AS id,
+				r1.user_id AS userId,
+				r1.match_id AS matchId,
+				r1.team_id AS teamId,
+				r1.cash AS cash,
+				r1.red_status AS redStatus,
+				r1.err_msg AS errMsg,
+				u1.nick_name AS nickName,
+				r1.rank AS rank,
+				u1.phone_no AS phoneNo,
+				m1.match_name AS matchName,
+				mtb.team_name AS teamName
+			FROM
+				win_send_red_detail r1
+			LEFT JOIN win_match_basic m1 ON r1.match_id = m1.id
+			LEFT JOIN win_match_user u1 ON r1.user_id = u1.id
+			LEFT JOIN win_match_team_basic mtb ON r1.team_id = mtb.id  
+    </select>
+    
+    <update id="updateRedStatus" >
+     UPDATE win_send_red_detail SET red_status=0 ,open_id =#{openId},phone_no=#{phoneNo} WHERE id=#{id}
+    </update>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.jrj.vtmatch.basicmatch.matchcore.dao.MatchUserAccountMapper">
+    <update id="updateTradeTimesByAccountId">
+        UPDATE win_match_user_account SET trade_times = #{times, jdbcType=INTEGER} WHERE account_id=#{accountId, jdbcType=VARCHAR}
+    </update>
+    <update id="batchUpdateTradeTimes" parameterType="java.util.List">
+        UPDATE win_match_user_account
+        SET trade_times =
+        <foreach collection="list" item="item" open="CASE account_id" separator=" " close="END">
+        WHEN #{item.accountId,jdbcType=VARCHAR} THEN #{item.tradeTimes,jdbcType=INTEGER}
+        </foreach>
+        WHERE account_id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item.accountId,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <select id="selectAll" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.MatchUserAccount">
+        SELECT user_id, account_id FROM win_match_user_account WHERE valid=TRUE
+    </select>
+
+    <select id="selectByAccountId" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.MatchUserAccount">
+        SELECT user_id, account_id, trade_times FROM win_match_user_account WHERE account_id=#{accountId,jdbcType=VARCHAR}
+    </select>
+</mapper>

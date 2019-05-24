@@ -1,0 +1,26 @@
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://172.16.198.3:3306/ycmatch?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true
+    username: JRJ_ycmatch_Test_W
+    password: 1b6r3yDkhQTlcEat10w0
+    driver-class-name: com.mysql.jdbc.Driver
+    initialization-mode: never
+    hikari:
+      maximum-pool-size: 200
+      minimum-idle: 5
+      connection-test-query: select 1
+  jackson:
+    deserialization:
+      read-date-timestamps-as-nanoseconds: false
+  security:
+    oauth2:
+      client:
+        client-id: vt-cloud-client
+        client-secret: 2dsaUPAJ9NKrPs3O
+        scope: api
+        access-token-uri: http://gateway.jrjc.local/auth/oauth/token
+
+vt:
+  domain: http://vt.jrjc.gateway

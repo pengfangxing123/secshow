@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.jrj.vtmatch.basicmatch.matchcore.dao.MatchTeamBasicMapper">
+
+    <select id="selectAvailableTeam"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.MatchTeamBasic">
+        SELECT id, match_id FROM win_match_team_basic WHERE is_deleted=0;
+    </select>
+    
+    <select id="selectTeamList"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.MatchTeamInfo">
+		SELECT  b.`master_id`,u.`nick_name`,u.`head_pic`,u.`type` userType,b.account_id,b.`team_name`,b.`declaration`,
+                b.match_id,b.id `team_id`,b.`member_num`,
+					 (case when r.total_rank > 0 then r.`day_yield` else null end) `day_yield`,r.`day_rank`,r.`last_day_rank`,r.`day_trend`,
+                     (case when r.total_rank > 0 then r.`week_yield` else null end) `week_yield`,r.`week_rank`,r.`last_week_rank`,r.`week_trend`,
+					 (case when r.total_rank > 0 then r.`month_yield` else null end) `month_yield`,r.`month_rank`,r.`last_month_rank`,r.`month_trend`,
+					 (case when r.total_rank > 0 then r.`total_yield` else null end) `total_yield`,r.`total_rank`,r.`last_total_rank`,r.`total_trend`,
+					 i.`im_user_id`,i.`im_user_id`
+        FROM win_match_team_basic b
+              LEFT JOIN win_match_team_day_stat_rank r ON r.team_id=b.id
+              LEFT JOIN `win_match_user` u ON b.`master_id`=u.id
+              LEFT JOIN `win_match_invest_info` i ON u.phone_no = i.phone_no
+        WHERE b.is_deleted=0 and b.match_id=#{matchId}
+    </select>
+    
+    <select id="selectMatchTeamInfo"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.MatchTeamInfo">
+        SELECT  b.`master_id`,u.`nick_name`,u.`head_pic`,u.`type` userType,b.account_id,b.`team_name`,b.`declaration`,
+                b.match_id,b.id `team_id`,b.`member_num`,r.`day_yield`,r.`day_rank`,r.`last_day_rank`,r.`day_trend`,
+                r.`week_yield`,r.`week_rank`,r.`last_week_rank`,r.`week_trend`,r.`month_yield`,r.`month_rank`,r.`last_month_rank`,
+                r.`month_trend`,r.`total_yield`,r.`total_rank`,r.`last_total_rank`,r.`total_trend`,i.`im_user_id`,c.`rule_config`
+        FROM win_match_team_basic b
+              inner join win_match_basic c on c.id = b.match_id
+              LEFT JOIN win_match_team_day_stat_rank r ON r.team_id=b.id
+              LEFT JOIN `win_match_user` u ON b.`master_id`=u.id
+              LEFT JOIN `win_match_invest_info` i ON u.phone_no = i.phone_no
+        WHERE b.is_deleted=0 and b.id=#{teamId} limit 1;
+    </select>
+    
+    <select id="selectTeamRank"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.MatchTeamInfo">
+        SELECT  b.`master_id`,u.`nick_name`,u.`head_pic`,u.`type` userType,b.account_id,b.`team_name`,b.`declaration`,
+                b.match_id,b.id team_id,b.`member_num`,r.`day_yield`,r.`day_rank`,r.`last_day_rank`,r.`day_trend`,
+                r.`week_yield`,r.`week_rank`,r.`last_week_rank`,r.`week_trend`,r.`month_yield`,r.`month_rank`,r.`last_month_rank`,
+                r.`month_trend`,r.`total_yield`,r.`total_rank`,r.`last_total_rank`,r.`total_trend`
+        FROM win_match_team_basic b
+        left join win_match_team_day_stat_rank r on r.team_id=b.id  
+        left join `win_match_user` u on b.`master_id`=u.id
+        WHERE b.is_deleted=0 AND r.total_rank > 0 and b.match_id=#{matchId}
+    </select>
+    
+    <select id="selectTeamRankByMemberNum"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.MatchTeamInfo">
+        SELECT  b.`master_id`,u.`nick_name`,u.`head_pic`,u.`type` userType,b.account_id,b.`team_name`,b.`declaration`,
+                r.match_id,r.`team_id`,b.`member_num`,r.`day_yield`,r.`day_rank`,r.`last_day_rank`,r.`day_trend`,
+                r.`week_yield`,r.`week_rank`,r.`last_week_rank`,r.`week_trend`,r.`month_yield`,r.`month_rank`,r.`last_month_rank`,
+                r.`month_trend`,r.`total_yield`,r.`total_rank`,r.`last_total_rank`,r.`total_trend`
+        FROM win_match_team_basic b
+        left join win_match_team_day_stat_rank r on r.team_id=b.id  
+        left join `win_match_user` u on b.`master_id`=u.id
+        WHERE b.is_deleted=0 and b.match_id=#{matchId} 
+    </select>
+    
+    <select id="selectTeamMemberRank"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.TeamMemberRankVO">
+        SELECT  match_id,team_id,user_id,account_id,day_yield,day_rank,week_yield,
+        	week_rank,month_yield,month_rank,total_yield,total_rank,
+        	u.nick_name,u.head_pic,u.`type` user_type,i.`im_user_id`
+		FROM win_match_team_member_day_stat_rank r
+		      INNER JOIN win_match_user u ON r.user_id = u.id
+		      LEFT JOIN `win_match_invest_info` i ON u.phone_no = i.phone_no
+		WHERE r.match_id=#{matchId} and r.team_id=#{teamId}
+        <if test="currentUserId != null and currentUserId != 0">
+            and r.user_id != #{currentUserId}
+        </if>
+    </select>
+
+    <select id="selectTeamMemberRankByUserId"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.TeamMemberRankVO">
+        SELECT  match_id,team_id,user_id,account_id,day_yield,day_rank,week_yield,
+        week_rank,month_yield,month_rank,total_yield,total_rank,
+        u.nick_name,u.head_pic,u.`type` user_type,i.`im_user_id`
+        FROM win_match_team_member_day_stat_rank r
+        INNER JOIN win_match_user u ON r.user_id = u.id
+        LEFT JOIN `win_match_invest_info` i ON u.phone_no = i.phone_no
+        WHERE r.match_id=#{matchId} and r.team_id=#{teamId}
+            and r.user_id = #{currentUserId}
+    </select>
+
+    <select id="selectMatchMemberRank"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.MatchMemberRankVO">
+        SELECT  match_id,user_id,account_id,day_yield,day_rank,week_yield,
+        	week_rank,month_yield,month_rank,total_yield,total_rank,
+        	u.nick_name,u.head_pic,u.`type` user_type
+		FROM win_match_user_day_stat_rank r, win_match_user u
+		WHERE r.user_id = u.id and r.match_id=#{matchId}
+    </select>
+    
+    <select id="queryUserTeamMemberRank"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.TeamMemberRankVO">
+        SELECT  match_id,team_id,user_id,account_id,day_yield,day_rank,week_yield,
+        	week_rank,month_yield,month_rank,total_yield,total_rank,
+        	u.nick_name,u.head_pic,u.`type` user_type
+		FROM win_match_team_member_day_stat_rank r, win_match_user u
+		WHERE r.user_id = u.id and r.team_id=#{teamId} and r.user_id = #{userId}
+    </select>
+    
+    <select id="selectTeamListPage"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.MatchTeamManageVO">
+		SELECT t.id,t.match_id,t.account_id,t.team_name,t.is_deleted,t.type,t.gmt_create,t.gmt_modified,t.is_locked,u.nick_name as master_name,
+			(SELECT COUNT(DISTINCT user_id) FROM win_match_team_join a WHERE a.team_id=t.id )as user_num
+		FROM
+			win_match_team_basic t LEFT JOIN win_match_user u ON t.master_id = u.id
+		<where>
+	    	<if test="matchTeamBasic.matchId!=null and matchTeamBasic.matchId!=''">and match_id=#{matchTeamBasic.matchId}</if>  
+	    	<if test="matchTeamBasic.teamName!=null and matchTeamBasic.teamName!=''"> and team_name like CONCAT(CONCAT('%',#{matchTeamBasic.teamName}),'%')</if>         
+   		</where>
+	    ORDER BY t.id desc    
+    </select>
+        
+    <select id="getTeamInfoById"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.MatchTeamManageVO">
+		SELECT t.id,t.team_name,t.`declaration`,u.nick_name as master_name,t.match_id,
+		(case when u.type=1 then "普通用户"
+			  when u.type=2 then "投顾用户"
+		 else '--'
+		 end )as master_type
+		FROM
+			win_match_team_basic t LEFT JOIN win_match_user u ON t.master_id = u.id
+		where t.id=#{id}   
+    </select>  
+    
+    <update id="updateTeamMember">
+        UPDATE `win_match_team_basic` 
+        	SET member_num = (SELECT COUNT(0) FROM `win_match_team_join` WHERE team_id=#{teamId} AND join_status=1) 
+        WHERE id = #{teamId}
+    </update>
+    
+      
+    
+</mapper>

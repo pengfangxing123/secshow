@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.jrj.vtmatch.basicmatch.matchcore.dao.MatchUserAccountDayStatRankMapper">
+    <insert id="insertOrUpdateBatch">
+        INSERT INTO win_match_user_account_day_stat_rank (account_id, user_id, day_yield, day_rank, last_day_rank, day_trend, week_yield, week_rank, last_week_rank, week_trend, month_yield, month_rank, last_month_rank, month_trend, total_yield, total_rank, last_total_rank, total_trend)
+                VALUES
+                    <foreach collection="list" separator="," item="item">
+                        (#{item.accountId},#{item.userId},#{item.dayYield},#{item.dayRank},#{item.lastDayRank},#{item.dayTrend},#{item.weekYield},#{item.weekRank},#{item.lastWeekRank},#{item.weekTrend},#{item.monthYield},#{item.monthRank},#{item.lastMonthRank},#{item.monthTrend},#{item.totalYield},#{item.totalRank},#{item.lastTotalRank},#{item.totalTrend})
+                    </foreach>
+        ON DUPLICATE KEY UPDATE
+        account_id = VALUES(account_id), user_id = VALUES(user_id), day_yield = VALUES(day_yield), day_rank = VALUES(day_rank), last_day_rank = VALUES(last_day_rank), day_trend = VALUES(day_trend), week_yield = VALUES(week_yield), week_rank = VALUES(week_rank), last_week_rank = VALUES(last_week_rank), week_trend = VALUES(week_trend), month_yield = VALUES(month_yield), month_rank = VALUES(month_rank), last_month_rank = VALUES(last_month_rank), month_trend = VALUES(month_trend), total_yield = VALUES(total_yield), total_rank = VALUES(total_rank), last_total_rank = VALUES(last_total_rank), total_trend = VALUES(total_trend)
+    </insert>
+    <insert id="batchInsert">
+    INSERT INTO win_match_user_account_day_stat_rank (account_id, user_id, day_yield, day_rank, last_day_rank, day_trend, week_yield, week_rank, last_week_rank, week_trend, month_yield, month_rank, last_month_rank, month_trend, total_yield, total_rank, last_total_rank, total_trend)
+    VALUES
+    <foreach collection="list" separator="," item="item">
+        (#{item.accountId},#{item.userId},#{item.dayYield},#{item.dayRank},#{item.lastDayRank},#{item.dayTrend},#{item.weekYield},#{item.weekRank},#{item.lastWeekRank},#{item.weekTrend},#{item.monthYield},#{item.monthRank},#{item.lastMonthRank},#{item.monthTrend},#{item.totalYield},#{item.totalRank},#{item.lastTotalRank},#{item.totalTrend})
+    </foreach>
+    </insert>
+    <delete id="deleteAll">
+        DELETE FROM win_match_user_account_day_stat_rank
+    </delete>
+    <select id="selectByUserId" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.UserStatRank">
+        SELECT
+            user_id,
+            head_pic,
+            nick_name,
+            day_yield yield,
+            day_rank rank,
+            day_trend trend
+        FROM win_match_user, win_match_user_account_day_stat_rank
+        WHERE win_match_user.id = win_match_user_account_day_stat_rank.user_id
+        AND win_match_user.id = #{userId,jdbcType=BIGINT}
+    </select>
+    <select id="selectDayRankOrderPage" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.UserStatRank">
+        SELECT
+            user_id,
+            head_pic,
+            nick_name,
+            day_yield yield,
+            day_rank rank,
+            day_trend trend
+        FROM win_match_user, win_match_user_account_day_stat_rank
+        WHERE win_match_user.id = win_match_user_account_day_stat_rank.user_id
+        ORDER BY day_rank
+    </select>
+    <select id="selectWeekRankOrderPage" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.UserStatRank">
+        SELECT
+            user_id,
+            head_pic,
+            nick_name,
+            week_yield yield,
+            week_rank rank,
+            week_trend trend
+        FROM win_match_user, win_match_user_account_day_stat_rank
+        WHERE win_match_user.id = win_match_user_account_day_stat_rank.user_id
+        ORDER BY week_rank
+    </select>
+    <select id="selectMonthRankOrderPage"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.UserStatRank">
+        SELECT
+            user_id,
+            head_pic,
+            nick_name,
+            month_yield yield,
+            month_rank rank,
+            month_trend trend
+        FROM win_match_user, win_match_user_account_day_stat_rank
+        WHERE win_match_user.id = win_match_user_account_day_stat_rank.user_id
+        ORDER BY month_rank
+    </select>
+    <select id="selectTotalRankOrderPage"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.UserStatRank">
+        SELECT
+            user_id,
+            head_pic,
+            nick_name,
+            total_yield yield,
+            total_rank rank,
+            total_trend trend
+        FROM win_match_user, win_match_user_account_day_stat_rank
+        WHERE win_match_user.id = win_match_user_account_day_stat_rank.user_id
+        ORDER BY total_rank
+    </select>
+</mapper>

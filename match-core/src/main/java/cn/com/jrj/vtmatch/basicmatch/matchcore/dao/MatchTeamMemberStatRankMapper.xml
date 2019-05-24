@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.jrj.vtmatch.basicmatch.matchcore.dao.MatchTeamMemberStatRankMapper">
+    <insert id="batchInsert">
+        INSERT INTO win_match_team_member_stat_rank (match_id,team_id,user_id,account_id,stat_date,day_yield,day_rank,last_day_rank,day_trend,week_yield,week_rank,last_week_rank,week_trend,month_yield,month_rank,last_month_rank,month_trend,total_yield,total_rank,last_total_rank,total_trend)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.matchId},#{item.teamId},#{item.userId},#{item.accountId},#{item.statDate},#{item.dayYield},#{item.dayRank},#{item.lastDayRank},#{item.dayTrend},#{item.weekYield},#{item.weekRank},#{item.lastWeekRank},#{item.weekTrend},#{item.monthYield},#{item.monthRank},#{item.lastMonthRank},#{item.monthTrend},#{item.totalYield},#{item.totalRank},#{item.lastTotalRank},#{item.totalTrend})
+        </foreach>
+    </insert>
+    <delete id="deleteByDateAndMatchIds">
+        DELETE FROM win_match_team_member_stat_rank
+        WHERE match_id IN
+        <foreach collection="matchIds" open="(" separator="," close=")" item="id">
+            #{id, jdbcType=INTEGER}
+        </foreach>
+        AND stat_date = #{date, jdbcType=DATE}
+    </delete>
+
+    <delete id="deleteByDate">
+        DELETE FROM win_match_team_member_stat_rank
+        WHERE stat_date=#{date, jdbcType=DATE}
+    </delete>
+
+    <select id="selectLastStat"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.MatchTeamMemberStatRank">
+        SELECT match_id,team_id,user_id, account_id, stat_date,day_yield,day_rank,week_yield,week_rank,month_yield,month_rank,total_yield,total_rank
+        FROM win_match_team_member_stat_rank t1
+            INNER JOIN (SELECT match_id mid, team_id tid, user_id uid, max(stat_date) sdate FROM win_match_team_member_stat_rank WHERE match_id = #{matchId, jdbcType=INTEGER} AND stat_date &lt; #{date, jdbcType=DATE} GROUP BY team_id, user_id) t2
+                ON match_id=mid AND team_id=tid AND user_id=uid AND stat_date = sdate
+    </select>
+</mapper>

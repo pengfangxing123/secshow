@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.jrj.vtmatch.basicmatch.matchcore.dao.MatchTeamJoinMapper">
+
+    <select id="selectAllJoinUser"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.MatchTeamJoin">
+        SELECT t1.match_id, team_id, user_id, t1.account_id, join_date FROM win_match_team_join t1,win_match_team_basic t2
+        WHERE t1.team_id=t2.id
+        AND t2.is_deleted=0
+        AND t2.is_locked=0
+        AND t1.match_id = #{matchId, jdbcType=INTEGER}
+        AND join_date &lt;=#{date,jdbcType=TIMESTAMP}
+        AND join_status=#{joinStatus, jdbcType=INTEGER}
+    </select>
+    
+    <select id="queryUserJoinTeamInfo"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.UserJoinTeamInfo">
+        SELECT j.`user_id`,j.`match_id`,j.`team_id`,j.`account_id`,j.`join_date`,j.`quit_date`,j.`join_status`, u.`nick_name`,
+        u.`head_pic`,r.`total_rank`,r.`total_yield`,b.`team_name`,b.`declaration`,
+        b.member_num,i.`im_user_id`
+		FROM `win_match_team_join` j
+		LEFT JOIN `win_match_team_basic` b ON j.`team_id` = b.`id`
+		LEFT JOIN  `win_match_user` u ON j.`user_id` = u.`id` 
+		LEFT JOIN  `win_match_team_member_day_stat_rank` r ON j.`team_id` =r.`team_id` AND r.user_id = j.user_id
+		LEFT JOIN  `win_match_invest_info` i ON u.phone_no = i.phone_no
+		WHERE  j.`user_id`=#{userId}  AND j.`match_id` = #{matchId} and j.`join_status` =1
+    </select>
+    
+    
+    <select id="queryStatTeamMemberNum"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.MatchTeamInfo">
+        SELECT match_id,team_id,COUNT(0) member_num FROM `win_match_team_join`  
+        WHERE join_status = 1 AND match_Id = #{matchId} 
+        GROUP BY team_id HAVING COUNT(0) >= #{minTeamMemberNum}
+    </select>
+</mapper>

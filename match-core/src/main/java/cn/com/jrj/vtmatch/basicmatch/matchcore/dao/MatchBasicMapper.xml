@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.jrj.vtmatch.basicmatch.matchcore.dao.MatchBasicMapper">
+
+    <select id="selectAllAvailable"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.MatchBasic">
+        SELECT id, start_date, end_date, type, rule_config FROM win_match_basic
+        WHERE start_date &lt;= #{date, jdbcType=DATE}
+        AND end_date &gt;= #{date, jdbcType=DATE}
+        AND match_status = 3
+    </select>
+    <select id="selectByMatchId" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.MatchBasic">
+        SELECT id, start_date, end_date, type, rule_config FROM win_match_basic WHERE id=#{matchId,jdbcType=INTEGER}
+    </select>
+    <select id="selectAvailableByMatchIds"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.MatchBasic">
+        SELECT id, start_date, end_date, type, rule_config FROM win_match_basic
+        WHERE start_date &lt;= #{date, jdbcType=DATE}
+        AND end_date &gt;= #{date, jdbcType=DATE}
+        AND match_status = 3
+        AND id IN
+        <foreach collection="matchIds" item="id" open="(" separator="," close=")">
+            #{id, jdbcType=INTEGER}
+        </foreach>
+    </select>
+    
+    <update id="updateTeamRule" >
+     UPDATE win_match_basic SET rule_config =#{rule_config} WHERE id = #{id} 
+    </update>
+
+    <update id="startReport" >
+        <![CDATA[ UPDATE win_match_basic SET match_status = 2 WHERE apply_start_date <= #{applyStartDate} and match_status = 1]]>
+    </update>
+
+    <update id="startMatch" >
+     <![CDATA[ UPDATE win_match_basic SET match_status = 3 WHERE start_date <= #{startDate} and end_date > #{startDate}  and match_status != 3]]>
+    </update>
+
+    <update id="reStartMatch" >
+        <![CDATA[ UPDATE win_match_basic SET match_status = 3 WHERE start_date <= now() and end_date > now() and match_status != 3]]>
+    </update>
+
+    <update id="deleteMatchById" >
+        UPDATE win_match_basic SET is_deleted= 1 WHERE id = #{matchId}
+    </update>
+
+    <update id="endMatch" >
+     <![CDATA[ UPDATE win_match_basic SET match_status = 4 WHERE end_date < #{endDate} and match_status = 3]]>
+    </update>
+    
+    <select id="selectMatchRedList"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.YcRedDetailVO">
+        SELECT r.id,r.`match_id`,r.`user_id`,r.`team_id`,r.`rank`,r.`cash`,u.`open_id`,u.`union_id`,u.`phone_no`,
+			m.`match_name`,m.`start_date`,m.`end_date` 
+			FROM `win_send_red_detail` r , `win_match_basic` m, `win_match_user` u 
+			WHERE r.`match_id` = m.`id` AND r.`user_id` = u.`id` AND r.red_status !=0 and r.match_id =#{matchId}
+    </select>
+
+    <update id="updateJoinMatchNum" >
+        UPDATE win_match_basic SET curr_num = curr_num + 1 WHERE id = #{id}
+    </update>
+
+    <update id="endMatchAndSetEndDateById" >
+      UPDATE win_match_basic SET match_status = 4,end_date = #{endDate} WHERE id = #{id}
+    </update>
+
+</mapper>

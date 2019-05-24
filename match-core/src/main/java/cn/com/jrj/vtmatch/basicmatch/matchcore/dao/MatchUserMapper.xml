@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.jrj.vtmatch.basicmatch.matchcore.dao.MatchUserMapper">
+
+    <select id="queryUserInfoAndAccountInfoByMobile" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.UserAndAccountInfo">
+        SELECT wmu.id userId,wmu.phone_no mobile,wmu.head_pic,wmu.nick_name,wmu.open_id,wmu.union_id,wmu.type,
+         wmua.id accountId,wmua.account_id innerAccountId,wmua.is_default FROM win_match_user wmu LEFT
+        JOIN win_match_user_account wmua ON wmu.id = wmua.user_id
+        WHERE wmu.phone_no = #{mobile}
+
+    </select>
+
+    <select id="queryUserInfoAndAccountInfoByUserId" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.UserAndAccountInfo">
+        SELECT wmu.id userId,wmu.phone_no mobile,wmu.head_pic,wmu.nick_name,wmu.open_id,wmu.union_id,wmu.type,
+         wmua.id accountId,wmua.account_id innerAccountId,wmua.is_default FROM win_match_user wmu LEFT
+        JOIN win_match_user_account wmua ON wmu.id = wmua.user_id
+        WHERE wmu.id = #{userId}
+    </select>
+
+    <update id="updateLoginTime">
+        update win_match_user set last_login_time = now() where id = #{userId}
+    </update>
+
+</mapper>

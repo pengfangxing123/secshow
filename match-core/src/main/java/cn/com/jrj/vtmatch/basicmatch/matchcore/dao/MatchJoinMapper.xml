@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.jrj.vtmatch.basicmatch.matchcore.dao.MatchJoinMapper">
+    <update id="updateTradeTimesByMatchIdAndUserId">
+        UPDATE win_match_join SET trade_times=#{times, jdbcType=INTEGER}
+        WHERE match_id=#{matchId, jdbcType=INTEGER}
+        AND account_id=#{accountId, jdbcType=VARCHAR}
+    </update>
+    <update id="batchUpdateTradeTimes">
+        UPDATE win_match_join
+        SET trade_times =
+        <foreach collection="list" item="item" open="CASE account_id" separator=" " close="END">
+            WHEN #{item.accountId,jdbcType=VARCHAR} THEN #{item.tradeTimes,jdbcType=INTEGER}
+        </foreach>
+        WHERE
+        match_id=#{matchId, jdbcType=INTEGER}
+        AND account_id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item.accountId}
+        </foreach>
+    </update>
+    <select id="selectAllJoinUser" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.MatchJoin">
+        SELECT m.user_id, match_id, m.account_id, join_date
+        FROM win_match_join m
+        WHERE match_id=#{matchId,jdbcType=INTEGER}
+          and join_date &lt;= #{date, jdbcType=TIMESTAMP}
+          and is_deleted=0
+          and match_status=1
+    </select>
+    
+    <select id="selectAccountActiveMatchList" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.AccountMatchInfo">
+        SELECT j.user_id,u.nick_name,u.head_pic,u.type user_type,j.account_id,j.join_date, b.apply_start_date match_start_date, j.match_id,b.match_name,b.match_pic,b.type match_type,r.total_yield,r.total_rank
+              FROM win_match_join j
+              inner join win_match_user u on j.user_id= u.id and u.user_status=1
+              inner join win_match_basic b on j.match_id = b.id and b.is_deleted = 0
+              left join win_match_user_day_stat_rank r on j.account_id = r.account_id AND r.match_id = b.id
+        WHERE j.is_deleted = 0 AND j.account_id = #{accountId};
+    </select> 
+    
+    <select id="selectUserMatchJoinInfo" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.AccountMatchInfo">
+        SELECT j.user_id,u.nick_name,u.head_pic,u.type user_type,j.account_id,j.`join_date`, b.apply_start_date match_start_date,
+        	  j.match_id,b.match_name,b.match_pic,b.type match_type ,r.total_yield,r.total_rank,r.month_yield,r.month_rank,r.day_yield,r.day_rank
+        	  FROM win_match_join j 
+        	   left join win_match_user u on j.user_id= u.id
+        	   left join win_match_basic b on j.match_id = b.id
+        	   left join win_match_user_day_stat_rank r on r.match_id = #{matchId} and  j.account_id = r.account_id
+        	  WHERE u.user_status=1 AND j.is_deleted = 0 AND j.user_id = #{userId} and j.match_id = #{matchId}
+    </select> 
+    
+    <select id="selectUserJoinList" resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.vo.UserMatchJoinVO">
+        SELECT j.user_id,u.nick_name,u.head_pic,u.type user_type,j.account_id,j.`join_date`,j.match_id 
+        	  FROM win_match_join j 
+        	   left join win_match_user u on j.user_id= u.id
+        	  WHERE u.user_status=1 AND j.is_deleted = 0 AND  j.match_id = #{matchId}
+    </select>
+
+    <update id="endMatchStatus">
+        UPDATE win_match_join SET match_status = 0 WHERE match_id = #{matchId}
+    </update>
+
+    <update id="reStartMatchStatus">
+        UPDATE win_match_join SET match_status = 1 WHERE match_id = #{matchId}
+    </update>
+
+</mapper>

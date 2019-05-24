@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.jrj.vtmatch.basicmatch.matchcore.dao.MatchTeamMemberDayStatRankMapper">
+    <insert id="insertOrUpdateBatch">
+        INSERT INTO win_match_team_member_day_stat_rank (match_id, team_id, user_id, account_id, day_yield, day_rank, last_day_rank, day_trend, week_yield, week_rank, last_week_rank, week_trend, month_yield, month_rank, last_month_rank, month_trend, total_yield, total_rank, last_total_rank, total_trend) VALUES
+            <foreach collection="list" separator="," item="item">
+                (#{item.matchId},#{item.teamId},#{item.userId},#{item.accountId},#{item.dayYield},#{item.dayRank},#{item.lastDayRank},#{item.dayTrend},#{item.weekYield},#{item.weekRank},#{item.lastWeekRank},#{item.weekTrend},#{item.monthYield},#{item.monthRank},#{item.lastMonthRank},#{item.monthTrend},#{item.totalYield},#{item.totalRank},#{item.lastTotalRank},#{item.totalTrend})
+            </foreach>
+        ON DUPLICATE KEY UPDATE
+        match_id = values(match_id),team_id = values(team_id), account_id = VALUES(account_id), user_id = VALUES(user_id), day_yield = VALUES(day_yield), day_rank = VALUES(day_rank), last_day_rank = VALUES(last_day_rank), day_trend = VALUES(day_trend), week_yield = VALUES(week_yield), week_rank = VALUES(week_rank), last_week_rank = VALUES(last_week_rank), week_trend = VALUES(week_trend), month_yield = VALUES(month_yield), month_rank = VALUES(month_rank), last_month_rank = VALUES(last_month_rank), month_trend = VALUES(month_trend), total_yield = VALUES(total_yield), total_rank = VALUES(total_rank), last_total_rank = VALUES(last_total_rank), total_trend = VALUES(total_trend)
+    </insert>
+    <insert id="batchInsert">
+        INSERT INTO win_match_team_member_day_stat_rank (match_id, team_id, user_id, account_id, day_yield, day_rank, last_day_rank, day_trend, week_yield, week_rank, last_week_rank, week_trend, month_yield, month_rank, last_month_rank, month_trend, total_yield, total_rank, last_total_rank, total_trend) VALUES
+        <foreach collection="list" separator="," item="item">
+            (#{item.matchId},#{item.teamId},#{item.userId},#{item.accountId},#{item.dayYield},#{item.dayRank},#{item.lastDayRank},#{item.dayTrend},#{item.weekYield},#{item.weekRank},#{item.lastWeekRank},#{item.weekTrend},#{item.monthYield},#{item.monthRank},#{item.lastMonthRank},#{item.monthTrend},#{item.totalYield},#{item.totalRank},#{item.lastTotalRank},#{item.totalTrend})
+        </foreach>
+    </insert>
+    <delete id="deleteByMatchId">
+        DELETE FROM win_match_team_member_day_stat_rank WHERE match_id=#{matchId, jdbcType=BIGINT}
+    </delete>
+</mapper>

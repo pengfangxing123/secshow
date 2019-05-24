@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.jrj.vtmatch.basicmatch.matchcore.dao.TradingMapper">
+
+    <select id="selectAccountTradeTimesByDate"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.AccountTradeTimes">
+        SELECT account_id, count(user_id) trade_times FROM win_trading
+        WHERE conclude_time &lt; #{date}
+        GROUP BY account_id
+    </select>
+
+    <select id="selectAccountTradeTimesByRange"
+            resultType="cn.com.jrj.vtmatch.basicmatch.matchcore.entity.match.AccountTradeTimes">
+        SELECT account_id, count(user_id) trade_times FROM win_trading
+        WHERE conclude_time &gt; #{startDate}
+            AND conclude_time &lt; #{endDate}
+        GROUP BY account_id
+    </select>
+</mapper>
